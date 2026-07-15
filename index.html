@@ -59,6 +59,52 @@
   playHero();
 })();
 </script>
+<script>
+(function(){
+  function initSpy(){
+    var nav=document.querySelector('.r-nav'); if(!nav){ return setTimeout(initSpy,200); }
+    var links=[].slice.call(nav.querySelectorAll('a'));
+    var map=[];
+    links.forEach(function(a){
+      var h=a.getAttribute('href')||'';
+      if(h.charAt(0)==='#'){ var s=document.getElementById(h.slice(1)); if(s) map.push({a:a,s:s}); }
+    });
+    if(!map.length){ return; }
+    function clear(){ links.forEach(function(a){ a.classList.remove('active'); }); }
+    map.forEach(function(o){ o.a.addEventListener('click', function(){ clear(); o.a.classList.add('active'); }); });
+    function onScroll(){
+      var y=window.scrollY+140, cur=null;
+      map.forEach(function(o){ if(o.s.offsetTop<=y) cur=o; });
+      clear(); if(cur) cur.a.classList.add('active');
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+  }
+  initSpy();
+})();
+</script>
+<script>
+(function(){
+  function initGallery(){
+    var gal=document.querySelector('.r-gallery'); if(!gal){ return setTimeout(initGallery,200); }
+    var box=document.getElementById('dule-lightbox');
+    if(!box){
+      box=document.createElement('div'); box.id='dule-lightbox';
+      box.innerHTML='<button class="dl-close" aria-label="Zatvori">&times;</button><img alt="">';
+      document.body.appendChild(box);
+    }
+    var big=box.querySelector('img');
+    function open(src,alt){ big.src=src; big.alt=alt||''; box.classList.add('open'); }
+    function close(){ box.classList.remove('open'); }
+    box.addEventListener('click', function(e){ if(e.target===box || e.target.classList.contains('dl-close')) close(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+    [].slice.call(gal.querySelectorAll('div > img')).forEach(function(img){
+      img.parentNode.addEventListener('click', function(){ open(img.currentSrc||img.src, img.alt); });
+    });
+  }
+  initGallery();
+})();
+</script>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; }
@@ -73,13 +119,25 @@
   .dule-tip { background:#0d0d10; color:#fff; border:1px solid #2e7dff; font-family:'Oswald',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase; padding:2px 8px; border-radius:6px; box-shadow:none; }
   .dule-tip::before { display:none; }
   .leaflet-container { background:#0d0d10; }
+  .r-gallery > div { cursor: zoom-in; }
+  .r-gallery img { transition: transform .45s ease; }
+  .r-gallery > div:hover img { transform: scale(1.08); }
+  #dule-lightbox { position:fixed; inset:0; z-index:9999; background:rgba(8,8,11,.92); display:flex; align-items:center; justify-content:center; padding:34px; opacity:0; pointer-events:none; transition:opacity .25s ease; }
+  #dule-lightbox.open { opacity:1; pointer-events:auto; }
+  #dule-lightbox img { max-width:92vw; max-height:88vh; border-radius:14px; box-shadow:0 30px 90px -20px rgba(0,0,0,.8); }
+  #dule-lightbox .dl-close { position:absolute; top:22px; right:26px; width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.25); font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .r-nav a{ position:relative; padding-bottom:5px; transition:color .2s ease; }
+  .r-nav a::after{ content:""; position:absolute; left:50%; bottom:0; width:0; height:2px; background:#2e7dff; border-radius:2px; transform:translateX(-50%); transition:width .28s ease; }
+  .r-nav a:hover{ color:#fff; }
+  .r-nav a:hover::after, .r-nav a.active::after{ width:100%; }
+  .r-nav a.active{ color:#fff; }
   @keyframes duleMarquee { from { transform: translateX(-33.3333%); } to { transform: translateX(0); } }
   .dule-track { animation: duleMarquee 30s linear infinite; }
   .dule-track:hover { animation-play-state: paused; }
   @media (max-width: 860px){
     .as-page{ overflow-x:hidden!important; }
     .r-loc-head{ flex-direction:column!important; align-items:flex-start!important; gap:14px!important; }
-    .r-ticker{ padding:9px 14px!important; font-size:10px!important; gap:8px!important; }
+    .r-ticker{ padding:9px 14px!important; font-size:10px!important; gap:8px!important; flex-wrap:wrap!important; white-space:normal!important; }
     .r-header{ padding-left:16px!important; padding-right:16px!important; flex-wrap:wrap!important; gap:10px!important; }
     .r-nav{ order:3; width:100%; flex-wrap:wrap!important; white-space:normal!important; justify-content:center; gap:10px 14px!important; }
     .as-page section{ padding-left:18px!important; padding-right:18px!important; }
@@ -112,7 +170,7 @@
 
 <div class="as-page" style="background:#0d0d10;font-family:'Public Sans',sans-serif;min-height:100vh;">
 <!-- TICKER -->
-        <div class="r-ticker" style="background:#2e7dff;color:#0d0d10;padding:11px 40px;display:flex;gap:18px;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:600;font-size:13px;letter-spacing:.5px;text-transform:uppercase;flex-wrap:wrap;">
+        <div class="r-ticker" style="background:#2e7dff;color:#0d0d10;padding:6px 40px;display:flex;gap:14px;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.4px;text-transform:uppercase;flex-wrap:nowrap;white-space:nowrap;line-height:1;overflow:hidden;">
           <span>Obuka za sve kategorije</span><span style="opacity:.5;">•</span>
           <span>Dve lokacije — Kruševac i Varvarin</span><span style="opacity:.5;">•</span>
           <span>12 vozila u voznom parku</span><span style="opacity:.5;">•</span>
@@ -120,28 +178,14 @@
         </div>
 
         <!-- NAV -->
-        <header class="r-header" style="position:sticky;top:0;z-index:1000;background:#0d0d10;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #1e1e24;">
+        <header class="r-header" style="position:sticky;top:12px;z-index:1000;background:#20222b;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #3a3d49;border-radius:16px;margin:12px 20px;box-shadow:0 14px 34px rgba(0,0,0,.5);">
           <div class="r-brand" style="display:flex;align-items:center;gap:14px;flex-shrink:0;">
-            <div style="background:#fff;border-radius:12px;padding:9px 14px;display:flex;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.35);"><img src="assets/logo.png" alt="Auto škola Dule" style="height:52px;display:block;"></div>
-            <details style="position:relative;">
-              <summary style="display:flex;align-items:center;gap:6px;color:#2e7dff;cursor:pointer;font-family:'Oswald',sans-serif;font-weight:600;font-size:13px;letter-spacing:.3px;text-transform:uppercase;border-left:1px solid #2a2a32;padding-left:14px;">Izaberi poslovnicu <span style="font-size:9px;">▼</span></summary>
-              <div style="position:absolute;top:calc(100% + 16px);left:0;background:#16161b;border:1px solid #2a2a32;border-radius:12px;padding:8px;min-width:300px;z-index:50;box-shadow:0 24px 48px -14px rgba(0,0,0,.7);">
-                <a href="#prijava-d" style="display:block;padding:12px 14px;border-radius:8px;">
-                  <span style="display:block;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;">Kruševac</span>
-                  <span style="display:block;font-size:12px;letter-spacing:0;text-transform:none;color:#9a9aa6;margin-top:2px;">Slobodana Jovanovića 6</span>
-                </a>
-                <a href="#prijava-d" style="display:block;padding:12px 14px;border-radius:8px;">
-                  <span style="display:block;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;">Varvarin</span>
-                  <span style="display:block;font-size:12px;letter-spacing:0;text-transform:none;color:#9a9aa6;margin-top:2px;">Slobode 94</span>
-                </a>
-                <div id="dule-map" style="height:180px;margin:8px 6px 4px;border-radius:10px;overflow:hidden;border:1px solid #2a2a32;"></div>
-              </div>
-            </details>
+            <div style="background:#fff;border-radius:14px;padding:12px 18px;display:flex;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.35);"><img src="assets/logo.png" alt="Auto škola Dule" style="height:72px;display:block;"></div>
           </div>
           <nav class="r-nav" style="display:flex;gap:13px;align-items:center;font-family:'Oswald',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.2px;text-transform:uppercase;color:#c8c8d0;white-space:nowrap;flex-shrink:0;">
-            <a href="#kategorije" style="color:#2e7dff;">Kategorije</a>
+            <a href="#kategorije">Kategorije</a>
             <a href="cenovnik.html">Cenovnik</a>
-            <a href="#instruktori">Instruktori</a>
+            <a href="#instruktori">Naš tim</a>
             <a href="#galerija">Galerija</a>
             <a href="#recenzije">Recenzije</a>
             <a href="#o-nama">O nama</a>
@@ -174,7 +218,6 @@
           </div>
         </div>
 
-        <!-- KATEGORIJE SELECTOR (overlap) -->
         <div id="kategorije" style="background:#0d0d10;padding:0 40px 80px;">
           <div style="background:#eef0f4;border-radius:18px;margin-top:-56px;position:relative;z-index:2;overflow:hidden;box-shadow:0 34px 80px -24px rgba(0,0,0,.7);">
             <div class="r-katbar" style="background:#2e7dff;padding:20px 30px;display:flex;align-items:center;justify-content:space-between;gap:20px;">
@@ -230,23 +273,6 @@
           </div>
         </div>
 
-        <!-- O NAMA -->
-        <section id="o-nama" class="r-onama" style="padding:0 40px 80px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;">
-          <div>
-            <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:14px;">O nama</div>
-            <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0 0 22px;line-height:1.02;text-transform:uppercase;">Iskustvo koje se oseti za volanom</h2>
-            <p style="font-size:17px;line-height:1.7;color:#b4b4be;margin:0 0 18px;">Auto škola Dule godinama obučava vozače u Kruševcu i Varvarinu. Cilj nam je da svaki polaznik izađe na ispit spreman i samouveren — kroz jasan plan obuke i individualan pristup.</p>
-            <p style="font-size:17px;line-height:1.7;color:#b4b4be;margin:0 0 28px;">Radimo sa savremenim voznim parkom i timom koji vam je na raspolaganju od prve teorijske nastave do polaganja.</p>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;">
-              <span style="background:#16161b;border:1px solid #2a2a32;color:#2e7dff;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;border-radius:999px;">Individualan pristup</span>
-              <span style="background:#16161b;border:1px solid #2a2a32;color:#2e7dff;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;border-radius:999px;">Fleksibilni termini</span>
-              <span style="background:#16161b;border:1px solid #2a2a32;color:#2e7dff;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;border-radius:999px;">Nova vozila</span>
-            </div>
-          </div>
-          <div class="r-photo" style="height:400px;border-radius:16px;overflow:hidden;"><img src="assets/o-nama.webp" alt="Tim i vozni park Auto škole Dule" style="width:100%; height:100%; object-fit: cover; display: block"></div>
-        </section>
-
-        <!-- CENOVNIK (teaser) -->
         <section id="cenovnik" style="padding:80px 40px;background:#16161b;border-top:1px solid #22222a;border-bottom:1px solid #22222a;">
           <div style="text-align:center;margin-bottom:48px;">
             <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">Cenovnik</div>
@@ -284,7 +310,91 @@
           </div>
         </section>
 
-        <!-- KORACI -->
+        <section id="instruktori" style="padding:80px 40px;">
+          <div style="text-align:center;margin-bottom:48px;">
+            
+            <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0;text-transform:uppercase;">NAŠ TIM</h2>
+          </div>
+          <div class="r-cols4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1200px;margin:0 auto;">
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/dusan.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">DUŠAN ZDRAVKOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Direktor</div></div></div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/bojan.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">BOJAN RADOSAVLJEVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor/ ispitivač</div></div></div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/tatjana.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 6%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">TATJANA VUČKOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Adminitsrator</div></div></div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/veljko.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">VELJKO PETROVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor</div></div></div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/vlasta.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 8%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">VLASTA MITIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor</div></div></div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/milena.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 56%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">MILENA MLADENOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor</div></div></div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/marko.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 8%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">MARKO MLADENOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor/ predavač/ ispitivač</div></div></div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/marijana.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 12%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">MARIJANA SIMONOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Predavač</div></div></div>
+          </div>          </section>
+        
+
+        
+
+        <section id="galerija" style="padding:0 40px 80px;">
+          <div style="text-align:center;margin-bottom:48px;">
+            <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">Galerija</div>
+            <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0;text-transform:uppercase;">Iz naše škole</h2>
+          </div>
+          <div class="r-gallery" style="display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;gap:16px;">
+            <div style="grid-column:span 2;grid-row:span 2;border-radius:14px;overflow:hidden;"><img src="assets/gallery/g1.webp" alt="Auto škola Dule — iz naše škole" style="width: 647px; height: 385px; object-fit: cover; display: block"></div>
+            <div style="border-radius:14px;overflow:hidden;"><img src="assets/gallery/g2.webp" alt="Auto škola Dule — iz naše škole" style="width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block;"></div>
+            <div style="border-radius:14px;overflow:hidden;"><img src="assets/gallery/g3.webp" alt="Auto škola Dule — iz naše škole" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+            <div style="border-radius:14px;overflow:hidden;"><img src="assets/gallery/g4.webp" alt="Auto škola Dule — iz naše škole" style="width: 319px; height: 181px; object-fit: cover; display: block"></div>
+            <div style="border-radius:14px;overflow:hidden;"><img src="assets/gallery/g5.webp" alt="Auto škola Dule — iz naše škole" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+          </div>
+        </section>
+
+        <section id="recenzije" style="padding:80px 40px;">
+          <div style="text-align:center;margin-bottom:48px;">
+            <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">Recenzije</div>
+            <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0 0 22px;text-transform:uppercase;">Šta kažu naši polaznici</h2>
+            <div style="display:inline-flex;align-items:center;gap:14px;background:#16161b;border:1px solid #26262e;border-radius:14px;padding:14px 24px;">
+              <i class="fa-brands fa-google" style="font-size:24px;color:#fff;"></i>
+              <div style="text-align:left;">
+                <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:30px;color:#fff;line-height:1;">4.9</span><span style="color:#f5b301;font-size:16px;letter-spacing:2px;">★★★★★</span></div>
+                <div style="color:#9a9aa6;font-size:13px;margin-top:2px;">Prosečna ocena na Google-u</div>
+              </div>
+            </div>
+          </div>
+          <div class="r-cols3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1200px;margin:0 auto;">
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;padding:30px;">
+              <div style="color:#f5b301;font-size:18px;letter-spacing:2px;margin-bottom:16px;">★★★★★</div>
+              <p style="color:#d4d4dc;font-size:16px;line-height:1.7;margin:0 0 22px;">Položio sam iz prve! Instruktori strpljivi i profesionalni, termini uvek prilagođeni mom rasporedu. Preporuka.</p>
+              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;text-transform:uppercase;">Nikola Jovanović</div>
+              <div style="color:#7a7a86;font-size:14px;">Kategorija B</div>
+            </div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;padding:30px;">
+              <div style="color:#f5b301;font-size:18px;letter-spacing:2px;margin-bottom:16px;">★★★★★</div>
+              <p style="color:#d4d4dc;font-size:16px;line-height:1.7;margin:0 0 22px;">Najbolja auto škola u Kruševcu. Sve pohvale za ceo tim — od teorije do vožnje sam se osećao sigurno.</p>
+              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;text-transform:uppercase;">Jelena Stanković</div>
+              <div style="color:#7a7a86;font-size:14px;">Kategorija A</div>
+            </div>
+            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;padding:30px;">
+              <div style="color:#f5b301;font-size:18px;letter-spacing:2px;margin-bottom:16px;">★★★★★</div>
+              <p style="color:#d4d4dc;font-size:16px;line-height:1.7;margin:0 0 22px;">Korektni, tačni i uvek dostupni za svako pitanje. Vožnju sam savladao brže nego što sam očekivao.</p>
+              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;text-transform:uppercase;">Miloš Petrović</div>
+              <div style="color:#7a7a86;font-size:14px;">Kategorija C</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:40px;">
+            <a href="https://www.google.com/search?sca_esv=1900f6222842606a&amp;sxsrf=APpeQnuN4lPtB7cfcZt7Ez79YOh8j_b1bA:1784102357524&amp;si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_x6NUjMRnuB4L0oqFfRUGPsoqt-xDtGmpRRrkmWZVrWiX94eAEWpCiakNcGqE0U9-xN6M6Aw10f2Dn5UnFlMxrXwYRyb2kbX2yZQ78uixV6L2xKBIQ%3D%3D&amp;q=Auto+%C5%A1kola+Dule+%D0%A0%D0%B5%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%98%D0%B5&amp;sa=X&amp;ved=2ahUKEwj0k42am9SVAxUxQfEDHS1OHRwQ0bkNegQIJBAI" target="_blank" style="display:inline-flex;align-items:center;gap:12px;border:1.5px solid rgba(255,255,255,.4);color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;letter-spacing:.5px;text-transform:uppercase;padding:14px 26px;border-radius:11px;" style-hover="border-color:#2e7dff;color:#2e7dff"><i class="fa-brands fa-google"></i> Ostavi recenziju na Google-u</a>
+          </div>
+        </section>
+
+        <section id="o-nama" class="r-onama" style="padding:0 40px 80px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;">
+          <div>
+            <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:14px;">O nama</div>
+            <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0 0 22px;line-height:1.02;text-transform:uppercase;">Iskustvo koje se oseti za volanom</h2>
+            <p style="font-size:17px;line-height:1.7;color:#b4b4be;margin:0 0 18px;">Auto škola Dule godinama obučava vozače u Kruševcu i Varvarinu. Cilj nam je da svaki polaznik izađe na ispit spreman i samouveren — kroz jasan plan obuke i individualan pristup.</p>
+            <p style="font-size:17px;line-height:1.7;color:#b4b4be;margin:0 0 28px;">Radimo sa savremenim voznim parkom i timom koji vam je na raspolaganju od prve teorijske nastave do polaganja.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <span style="background:#16161b;border:1px solid #2a2a32;color:#2e7dff;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;border-radius:999px;">Individualan pristup</span>
+              <span style="background:#16161b;border:1px solid #2a2a32;color:#2e7dff;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;border-radius:999px;">Fleksibilni termini</span>
+              <span style="background:#16161b;border:1px solid #2a2a32;color:#2e7dff;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;border-radius:999px;">Nova vozila</span>
+            </div>
+          </div>
+          <div class="r-photo" style="height:400px;border-radius:16px;overflow:hidden;"><img src="assets/o-nama.webp" alt="Tim i vozni park Auto škole Dule" style="width:100%; height:100%; object-fit: cover; display: block"></div>
+        </section>
+
         <section id="koraci" style="padding:80px 40px;background:#16161b;border-top:1px solid #22222a;border-bottom:1px solid #22222a;">
           <div style="max-width:1200px;margin:0 auto;">
             <h2 style="font-family:'Oswald',sans-serif;font-size:44px;font-weight:700;color:#fff;margin:0 0 48px;text-transform:uppercase;line-height:1.05;max-width:820px;">Tri mala koraka za tebe —<br>jedan veliki ka tvojoj nezavisnosti</h2>
@@ -308,41 +418,7 @@
           </div>
         </section>
 
-        <!-- INSTRUKTORI -->
-        <section id="instruktori" style="padding:80px 40px;">
-          <div style="text-align:center;margin-bottom:48px;">
-            
-            <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0;text-transform:uppercase;">NAŠ TIM</h2>
-          </div>
-          <div class="r-cols4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1200px;margin:0 auto;">
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/dusan.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">DUŠAN ZDRAVKOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Direktor</div></div></div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/bojan.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">BOJAN RADOSAVLJEVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor/ ispitivač</div></div></div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/tatjana.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 6%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">TATJANA VUČKOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Adminitsrator</div></div></div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/veljko.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">VELJKO PETROVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor</div></div></div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/vlasta.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 8%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">VLASTA MITIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor</div></div></div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/milena.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 56%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">MILENA MLADENOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor</div></div></div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/marko.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 8%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">MARKO MLADENOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Instruktor/ predavač/ ispitivač</div></div></div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;overflow:hidden;"><div style="height:300px;"><img src="assets/team/marijana.webp" alt="Član tima Auto škole Dule" style="width:100%;height:100%;object-fit:cover;object-position:center 12%;display:block;"></div><div style="padding:20px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;">MARIJANA SIMONOVIĆ</div><div style="color:#2e7dff;font-weight:600;font-size:14px;margin-top:4px;">Predavač</div></div></div>
-          </div>          </section>
-        
-
-        <!-- GALERIJA -->
-        
-
-        <!-- FAQ -->
-        <section id="galerija" style="padding:0 40px 80px;">
-          <div style="text-align:center;margin-bottom:48px;">
-            <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">Galerija</div>
-            <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0;text-transform:uppercase;">Iz naše škole</h2>
-          </div>
-          <div class="r-gallery" style="display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;gap:16px;">
-            <div style="grid-column:span 2;grid-row:span 2;border-radius:14px;overflow:hidden;"><img src="assets/gallery/g1.webp" alt="Auto škola Dule — iz naše škole" style="width: 647px; height: 385px; object-fit: cover; display: block"></div>
-            <div style="border-radius:14px;overflow:hidden;"><img src="assets/gallery/g2.webp" alt="Auto škola Dule — iz naše škole" style="width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block;"></div>
-            <div style="border-radius:14px;overflow:hidden;"><img src="assets/gallery/g3.webp" alt="Auto škola Dule — iz naše škole" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
-            <div style="border-radius:14px;overflow:hidden;"><img src="assets/gallery/g4.webp" alt="Auto škola Dule — iz naše škole" style="width: 319px; height: 181px; object-fit: cover; display: block"></div>
-            <div style="border-radius:14px;overflow:hidden;"><img src="assets/gallery/g5.webp" alt="Auto škola Dule — iz naše škole" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
-          </div>
-        </section><section style="padding:80px 40px;background:#16161b;border-top:1px solid #22222a;">
+        <section style="padding:80px 40px;background:#16161b;border-top:1px solid #22222a;">
           <div style="text-align:center;margin-bottom:48px;">
             <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">FAQ</div>
             <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0;text-transform:uppercase;">Česta pitanja</h2>
@@ -367,45 +443,42 @@
           </div>
         </section>
 
-        <!-- RECENZIJE -->
-        <section id="recenzije" style="padding:80px 40px;">
-          <div style="text-align:center;margin-bottom:48px;">
-            <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">Recenzije</div>
-            <h2 style="font-family:'Oswald',sans-serif;font-size:46px;font-weight:700;color:#fff;margin:0 0 22px;text-transform:uppercase;">Šta kažu naši polaznici</h2>
-            <div style="display:inline-flex;align-items:center;gap:14px;background:#16161b;border:1px solid #26262e;border-radius:14px;padding:14px 24px;">
-              <i class="fa-brands fa-google" style="font-size:24px;color:#fff;"></i>
-              <div style="text-align:left;">
-                <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:30px;color:#fff;line-height:1;">4.9</span><span style="color:#f5b301;font-size:16px;letter-spacing:2px;">★★★★★</span></div>
-                <div style="color:#9a9aa6;font-size:13px;margin-top:2px;">Prosečna ocena na Google-u</div>
+        <section id="prijava-d" style="padding:80px 40px;background:#16161b;border-top:1px solid #22222a;">
+          <div class="r-contact" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;">
+            <div>
+              <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">Kontakt</div>
+              <h2 style="font-family:'Oswald',sans-serif;font-size:42px;font-weight:700;color:#fff;margin:0 0 28px;text-transform:uppercase;">Dve lokacije, jedan poziv</h2>
+              <div style="display:flex;flex-direction:column;gap:16px;">
+                <div style="background:#0d0d10;border:1px solid #2a2a32;border-left:4px solid #2e7dff;border-radius:12px;padding:24px;">
+                  <div class="r-loc-head" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:19px;color:#fff;text-transform:uppercase;">Kruševac</div><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Slobodana+Jovanovi%C4%87a+6,+Kru%C5%A1evac" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:#2e7dff;color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;letter-spacing:.5px;text-transform:uppercase;padding:8px 13px;border-radius:8px;white-space:nowrap;"><i class="fa-solid fa-diamond-turn-right"></i> Ruta</a></div>
+                  <div style="color:#b4b4be;font-size:15px;line-height:1.9;">Slobodana Jovanovića 6, Kruševac<br>060 6 037 037<br>autoskoladule@gmail.com</div>
+                </div>
+                <div style="background:#0d0d10;border:1px solid #2a2a32;border-left:4px solid #d81f2a;border-radius:12px;padding:24px;">
+                  <div class="r-loc-head" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:19px;color:#fff;text-transform:uppercase;">Varvarin</div><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Slobode+94,+Varvarin" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:#d81f2a;color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;letter-spacing:.5px;text-transform:uppercase;padding:8px 13px;border-radius:8px;white-space:nowrap;"><i class="fa-solid fa-diamond-turn-right"></i> Ruta</a></div>
+                  <div style="color:#b4b4be;font-size:15px;line-height:1.9;">Slobode 94, Varvarin<br>060 6 037 037<br>autoskoladule@gmail.com</div>
+                </div>
+                <div id="dule-map2" style="height:220px;border-radius:14px;overflow:hidden;border:1px solid #2a2a32;"></div>
+              </div>
+            </div>
+            <div style="background:#0d0d10;border:1px solid #2a2a32;border-radius:18px;padding:36px;">
+              <h3 style="font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;color:#fff;margin:0 0 6px;text-transform:uppercase;">Prijavi se odmah</h3>
+              <p style="color:#9a9aa6;font-size:15px;margin:0 0 24px;">Popuni prijavu i očekuj naš poziv u najkraćem roku.</p>
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <input placeholder="Ime i prezime" style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#fff;">
+                <div class="r-formrow" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                  <input placeholder="Telefon" style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#fff;">
+                  <input placeholder="Email" style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#fff;">
+                </div>
+                <select style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#9a9aa6;">
+                  <option>Izaberi kategoriju — B</option><option>A / A1 / A2 / AM</option><option>C</option><option>BE / CE</option>
+                </select>
+                <textarea placeholder="Poruka (opciono)" rows="3" style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#fff;resize:none;"></textarea>
+                <button style="background:#d81f2a;color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:17px;letter-spacing:.8px;text-transform:uppercase;padding:15px;border:none;border-radius:11px;cursor:pointer;">Pošalji prijavu</button>
               </div>
             </div>
           </div>
-          <div class="r-cols3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1200px;margin:0 auto;">
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;padding:30px;">
-              <div style="color:#f5b301;font-size:18px;letter-spacing:2px;margin-bottom:16px;">★★★★★</div>
-              <p style="color:#d4d4dc;font-size:16px;line-height:1.7;margin:0 0 22px;">Položio sam iz prve! Instruktori strpljivi i profesionalni, termini uvek prilagođeni mom rasporedu. Preporuka.</p>
-              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;text-transform:uppercase;">Ime Prezime</div>
-              <div style="color:#7a7a86;font-size:14px;">Kategorija B</div>
-            </div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;padding:30px;">
-              <div style="color:#f5b301;font-size:18px;letter-spacing:2px;margin-bottom:16px;">★★★★★</div>
-              <p style="color:#d4d4dc;font-size:16px;line-height:1.7;margin:0 0 22px;">Najbolja auto škola u Kruševcu. Sve pohvale za ceo tim — od teorije do vožnje sam se osećao sigurno.</p>
-              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;text-transform:uppercase;">Ime Prezime</div>
-              <div style="color:#7a7a86;font-size:14px;">Kategorija A</div>
-            </div>
-            <div style="background:#16161b;border:1px solid #26262e;border-radius:16px;padding:30px;">
-              <div style="color:#f5b301;font-size:18px;letter-spacing:2px;margin-bottom:16px;">★★★★★</div>
-              <p style="color:#d4d4dc;font-size:16px;line-height:1.7;margin:0 0 22px;">Korektni, tačni i uvek dostupni za svako pitanje. Vožnju sam savladao brže nego što sam očekivao.</p>
-              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;text-transform:uppercase;">Ime Prezime</div>
-              <div style="color:#7a7a86;font-size:14px;">Kategorija C</div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:40px;">
-            <a href="https://www.google.com/search?sca_esv=1900f6222842606a&amp;sxsrf=APpeQnuN4lPtB7cfcZt7Ez79YOh8j_b1bA:1784102357524&amp;si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_x6NUjMRnuB4L0oqFfRUGPsoqt-xDtGmpRRrkmWZVrWiX94eAEWpCiakNcGqE0U9-xN6M6Aw10f2Dn5UnFlMxrXwYRyb2kbX2yZQ78uixV6L2xKBIQ%3D%3D&amp;q=Auto+%C5%A1kola+Dule+%D0%A0%D0%B5%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%98%D0%B5&amp;sa=X&amp;ved=2ahUKEwj0k42am9SVAxUxQfEDHS1OHRwQ0bkNegQIJBAI" target="_blank" style="display:inline-flex;align-items:center;gap:12px;border:1.5px solid rgba(255,255,255,.4);color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;letter-spacing:.5px;text-transform:uppercase;padding:14px 26px;border-radius:11px;" style-hover="border-color:#2e7dff;color:#2e7dff"><i class="fa-brands fa-google"></i> Ostavi recenziju na Google-u</a>
-          </div>
         </section>
 
-        <!-- PRIJATELJI -->
         <section style="padding:64px 0 68px;text-align:center;">
           <div style="font-family:'Oswald',sans-serif;color:#7a7a86;font-weight:600;letter-spacing:1.5px;font-size:15px;text-transform:uppercase;margin-bottom:34px;">Prijatelji sajta</div>
           <div style="overflow:hidden;background:#fff;padding:32px 0;">
@@ -426,44 +499,6 @@
           </div>
         </section>
 
-        <!-- KONTAKT + PRIJAVA -->
-        <section id="prijava-d" style="padding:80px 40px;background:#16161b;border-top:1px solid #22222a;">
-          <div class="r-contact" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;">
-            <div>
-              <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">Kontakt</div>
-              <h2 style="font-family:'Oswald',sans-serif;font-size:42px;font-weight:700;color:#fff;margin:0 0 28px;text-transform:uppercase;">Dve lokacije, jedan poziv</h2>
-              <div style="display:flex;flex-direction:column;gap:16px;">
-                <div style="background:#0d0d10;border:1px solid #2a2a32;border-left:4px solid #2e7dff;border-radius:12px;padding:24px;">
-                  <div class="r-loc-head" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:19px;color:#fff;text-transform:uppercase;">Kruševac</div><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Slobodana+Jovanovi%C4%87a+6,+Kru%C5%A1evac" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:#2e7dff;color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;letter-spacing:.5px;text-transform:uppercase;padding:8px 13px;border-radius:8px;white-space:nowrap;"><i class="fa-solid fa-diamond-turn-right"></i> Ruta</a></div>
-                  <div style="color:#b4b4be;font-size:15px;line-height:1.9;">Slobodana Jovanovića 6, Kruševac<br>060 6 037 037<br>autoskoladule@gmail.com</div>
-                </div>
-                <div style="background:#0d0d10;border:1px solid #2a2a32;border-left:4px solid #d81f2a;border-radius:12px;padding:24px;">
-                  <div class="r-loc-head" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;"><div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:19px;color:#fff;text-transform:uppercase;">Varvarin</div><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Slobode+94,+Varvarin" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:#d81f2a;color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;letter-spacing:.5px;text-transform:uppercase;padding:8px 13px;border-radius:8px;white-space:nowrap;"><i class="fa-solid fa-diamond-turn-right"></i> Ruta</a></div>
-                  <div style="color:#b4b4be;font-size:15px;line-height:1.9;">Slobode 94, Varvarin<br>060 6 037 037<br>autoskoladule@gmail.com</div>
-                </div>
-                <div id="dule-map2" style="height:220px;border-radius:14px;overflow:hidden;border:1px solid #2a2a32;"></div>
-              </div>
-            </div>
-            <div style="background:#0d0d10;border:1px solid #2a2a32;border-radius:18px;padding:36px;">
-              <h3 style="font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;color:#fff;margin:0 0 6px;text-transform:uppercase;">Prijavi se odmah</h3>
-              <p style="color:#9a9aa6;font-size:15px;margin:0 0 24px;">Ostavi podatke i javljamo ti se za termin.</p>
-              <div style="display:flex;flex-direction:column;gap:14px;">
-                <input placeholder="Ime i prezime" style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#fff;">
-                <div class="r-formrow" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-                  <input placeholder="Telefon" style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#fff;">
-                  <input placeholder="Email" style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#fff;">
-                </div>
-                <select style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#9a9aa6;">
-                  <option>Izaberi kategoriju — B</option><option>A / A1 / A2 / AM</option><option>C</option><option>BE / CE</option>
-                </select>
-                <textarea placeholder="Poruka (opciono)" rows="3" style="background:#16161b;border:1.5px solid #2f2f38;border-radius:10px;padding:13px 16px;font-size:15px;font-family:inherit;color:#fff;resize:none;"></textarea>
-                <button style="background:#d81f2a;color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:17px;letter-spacing:.8px;text-transform:uppercase;padding:15px;border:none;border-radius:11px;cursor:pointer;">Pošalji prijavu</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- PRATITE NAS -->
         <section style="padding:64px 40px;text-align:center;background:linear-gradient(180deg,#0f2036 0%,#0d0d10 100%);border-top:1px solid #22385c;">
           <div style="font-family:'Oswald',sans-serif;color:#2e7dff;font-weight:600;letter-spacing:1.5px;font-size:14px;text-transform:uppercase;margin-bottom:12px;">Pratite nas</div>
           <h2 style="font-family:'Oswald',sans-serif;font-size:36px;font-weight:700;color:#fff;margin:0 0 28px;text-transform:uppercase;">Budi u toku sa Auto školom Dule</h2>
@@ -480,5 +515,6 @@
           <div style="color:#7a7a86;font-size:14px;">© 2026 Auto škola Dule · Kruševac i Varvarin · 060 6 037 037</div>
         </footer>
         </div>
+
 </body>
 </html>
